@@ -1,3 +1,4 @@
 <?php
-header('Location: screen1.html');
-exit();
+header("Location: screen6.html");
+exit;
+?>
