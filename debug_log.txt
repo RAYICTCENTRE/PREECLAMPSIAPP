@@ -1,0 +1,22 @@
+2026-06-20 16:40:45 - === START REQUEST ===
+2026-06-20 16:40:45 - Session started
+2026-06-20 16:40:45 - Connecting to database...
+2026-06-20 16:40:45 - Database connected successfully
+2026-06-20 16:40:45 - User ID from session: 1
+2026-06-20 16:40:45 - Raw input received: {"mode":"home","symptoms":["Headache","Swelling"],"gestational_age_weeks":30,"maternal_age_yrs":28}
+2026-06-20 16:40:45 - Decoded data: Array
+(
+    [mode] => home
+    [symptoms] => Array
+        (
+            [0] => Headache
+            [1] => Swelling
+        )
+
+    [gestational_age_weeks] => 30
+    [maternal_age_yrs] => 28
+)
+
+2026-06-20 16:40:45 - Extracted data - Mode: home, Symptoms: Headache, Swelling
+2026-06-20 16:40:45 - Calculated risk: 50
+2026-06-20 16:40:45 - Statement prepared successfully

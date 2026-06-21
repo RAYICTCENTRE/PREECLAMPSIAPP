@@ -1,0 +1,9 @@
+Numerical features:
+systolic_bp
+diastolic_bp
+gestational_age_weeks
+maternal_age_yrs
+diabetes
+proteinuria_num
+
+Text features: TF-IDF vectorized symptoms
