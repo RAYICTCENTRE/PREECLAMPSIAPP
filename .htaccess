@@ -1,6 +1,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
+# Force prefork MPM (if possible)
+<IfModule mpm_prefork_module>
+    # Prefork settings
+</IfModule>   
+ RewriteBase /
 
     # If the request is not for a real file or directory
     RewriteCond %{REQUEST_FILENAME} !-f
