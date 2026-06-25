@@ -2,17 +2,18 @@
 session_start();
 header('Content-Type: application/json');
 
-// Enable error reporting for debugging (remove in production)
+// Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-// Database connection
-$mysqli = new mysqli('127.0.0.1', 'root', 'your_password', 'mothercare');
+// DATABASE CONNECTION (Using host.docker.internal to escape the container)
+$mysqli = new mysqli('host.docker.internal', 'root', 'your_actual_database_password', 'mothercare');
 
-if ($conn->connect_error) {
+// FIX: Changed $conn to $mysqli
+if ($mysqli->connect_error) {
     echo json_encode([
         "success" => false, 
-        "message" => "Database connection failed: " . $conn->connect_error
+        "message" => "Database connection failed: " . $mysqli->connect_error
     ]);
     exit();
 }
@@ -26,7 +27,7 @@ if (!$login_input || !$password) {
         "success" => false, 
         "message" => "All fields are required"
     ]);
-    $conn->close();
+    $mysqli->close(); // FIX: Changed $conn to $mysqli
     exit();
 }
 
@@ -39,14 +40,16 @@ $is_email = filter_var($login_input, FILTER_VALIDATE_EMAIL);
 // Prepare query based on input type
 if ($is_email) {
     // Email login
-    $stmt = $conn->prepare("SELECT id, firstname, lastname, email, phone, password, user_type, approved, status FROM users WHERE email = ?");
+    // FIX: Changed $conn to $mysqli
+    $stmt = $mysqli->prepare("SELECT id, firstname, lastname, email, phone, password, user_type, approved, status FROM users WHERE email = ?");
     $stmt->bind_param("s", $login_input);
 } else {
     // Phone login - clean phone number
     $phone_clean = preg_replace('/[^0-9+]/', '', $login_input);
     
     // Try exact match first, then partial match
-    $stmt = $conn->prepare("SELECT id, firstname, lastname, email, phone, password, user_type, approved, status FROM users WHERE phone = ? OR phone LIKE ?");
+    // FIX: Changed $conn to $mysqli
+    $stmt = $mysqli->prepare("SELECT id, firstname, lastname, email, phone, password, user_type, approved, status FROM users WHERE phone = ? OR phone LIKE ?");
     $phone_pattern = "%$phone_clean";
     $stmt->bind_param("ss", $phone_clean, $phone_pattern);
 }
@@ -64,7 +67,7 @@ if ($result && $result->num_rows > 0) {
             "message" => "Your account is inactive. Please contact support."
         ]);
         $stmt->close();
-        $conn->close();
+        $mysqli->close(); // FIX: Changed $conn to $mysqli
         exit();
     }
     
@@ -85,7 +88,8 @@ if ($result && $result->num_rows > 0) {
         switch ($row['user_type']) {
             case "client":
                 // Check if client profile exists and has required fields
-                $check = $conn->prepare("SELECT id, age, last_period FROM user_profiles WHERE user_id = ?");
+                // FIX: Changed $conn to $mysqli
+                $check = $mysqli->prepare("SELECT id, age, last_period FROM user_profiles WHERE user_id = ?");
                 $check->bind_param("i", $row['id']);
                 $check->execute();
                 $profile_result = $check->get_result();
@@ -107,12 +111,13 @@ if ($result && $result->num_rows > 0) {
                         "message" => "Your account is pending admin approval."
                     ]);
                     $stmt->close();
-                    $conn->close();
+                    $mysqli->close(); // FIX: Changed $conn to $mysqli
                     exit();
                 }
                 
                 // Check if doctor has completed profile
-                $check_doctor = $conn->prepare("SELECT id, specialty, facility, dcontact FROM doctors WHERE user_id = ?");
+                // FIX: Changed $conn to $mysqli
+                $check_doctor = $mysqli->prepare("SELECT id, specialty, facility, dcontact FROM doctors WHERE user_id = ?");
                 $check_doctor->bind_param("i", $row['id']);
                 $check_doctor->execute();
                 $doctor_result = $check_doctor->get_result();
@@ -158,5 +163,5 @@ if ($result && $result->num_rows > 0) {
 }
 
 $stmt->close();
-$conn->close();
+$mysqli->close(); // FIX: Changed $conn to $mysqli
 ?>
