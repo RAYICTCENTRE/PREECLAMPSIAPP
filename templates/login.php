@@ -9,7 +9,7 @@ ini_set('display_errors', 0);
 // DATABASE CONNECTION (Using host.docker.internal to escape the container)
 $mysqli = new mysqli('host.docker.internal', 'root', 'your_actual_database_password', 'mothercare');
 
-// FIX: Changed $conn to $mysqli
+// FIX: Changed $conn to $mysqli to prevent script crash
 if ($mysqli->connect_error) {
     echo json_encode([
         "success" => false, 
@@ -27,7 +27,7 @@ if (!$login_input || !$password) {
         "success" => false, 
         "message" => "All fields are required"
     ]);
-    $mysqli->close(); // FIX: Changed $conn to $mysqli
+    $mysqli->close(); 
     exit();
 }
 
@@ -40,7 +40,6 @@ $is_email = filter_var($login_input, FILTER_VALIDATE_EMAIL);
 // Prepare query based on input type
 if ($is_email) {
     // Email login
-    // FIX: Changed $conn to $mysqli
     $stmt = $mysqli->prepare("SELECT id, firstname, lastname, email, phone, password, user_type, approved, status FROM users WHERE email = ?");
     $stmt->bind_param("s", $login_input);
 } else {
@@ -48,7 +47,6 @@ if ($is_email) {
     $phone_clean = preg_replace('/[^0-9+]/', '', $login_input);
     
     // Try exact match first, then partial match
-    // FIX: Changed $conn to $mysqli
     $stmt = $mysqli->prepare("SELECT id, firstname, lastname, email, phone, password, user_type, approved, status FROM users WHERE phone = ? OR phone LIKE ?");
     $phone_pattern = "%$phone_clean";
     $stmt->bind_param("ss", $phone_clean, $phone_pattern);
@@ -67,7 +65,7 @@ if ($result && $result->num_rows > 0) {
             "message" => "Your account is inactive. Please contact support."
         ]);
         $stmt->close();
-        $mysqli->close(); // FIX: Changed $conn to $mysqli
+        $mysqli->close(); 
         exit();
     }
     
@@ -88,7 +86,6 @@ if ($result && $result->num_rows > 0) {
         switch ($row['user_type']) {
             case "client":
                 // Check if client profile exists and has required fields
-                // FIX: Changed $conn to $mysqli
                 $check = $mysqli->prepare("SELECT id, age, last_period FROM user_profiles WHERE user_id = ?");
                 $check->bind_param("i", $row['id']);
                 $check->execute();
@@ -111,12 +108,11 @@ if ($result && $result->num_rows > 0) {
                         "message" => "Your account is pending admin approval."
                     ]);
                     $stmt->close();
-                    $mysqli->close(); // FIX: Changed $conn to $mysqli
+                    $mysqli->close(); 
                     exit();
                 }
                 
                 // Check if doctor has completed profile
-                // FIX: Changed $conn to $mysqli
                 $check_doctor = $mysqli->prepare("SELECT id, specialty, facility, dcontact FROM doctors WHERE user_id = ?");
                 $check_doctor->bind_param("i", $row['id']);
                 $check_doctor->execute();
@@ -163,5 +159,5 @@ if ($result && $result->num_rows > 0) {
 }
 
 $stmt->close();
-$mysqli->close(); // FIX: Changed $conn to $mysqli
+$mysqli->close(); 
 ?>
