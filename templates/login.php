@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 // Database connection
-$conn = new mysqli("localhost", "root", "", "mothercare");
+$mysqli = new mysqli('127.0.0.1', 'root', 'your_password', 'mothercare');
 
 if ($conn->connect_error) {
     echo json_encode([
